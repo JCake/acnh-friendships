@@ -23,9 +23,6 @@
   max-height: 75px;
   margin-right: 20px;
 }
-.calendar-url {
-  width: calc(100% - 60px);
-}
 .selected {
   background-color: #bcbcbc;
 }
@@ -89,30 +86,23 @@ header span {
 
 <div class="intro">
 <header>
-  <span>🎂</span>
-  <h1>Villager Birthday Calendar</h1>
-  <span>🎁</span>
+  <h1>Villager Friendship Calculator</h1>
 </header>
-<h2>Never let a villager's birthday sneak up on you again! 🎉</h2>
 <ol>
 <li>Find your villagers</li>
 <li>Tap each one</li>
-<li>Click "Subscribe" to import!</li>
 </ol>
 
-<p>Or, click "Copy" and add by URL: <a href="https://calendar.google.com/calendar/r/settings/addbyurl">Google Calendar</a></p>
 </div>
-<div class="calendar hidden">
-<p>
-  <input type="text" class="calendar-url">
-  <span class="copy">Copy</span>
+<div>
+<p class="score">
+  
 </p>
-<p class="link"><a href="">Subscribe</a></p>
 </div>
 {% for val in villagers %}
-<div class="villager" data-name="{{val.name['name-en'].toLowerCase()}}">
+<div class="villager" data-name="{{val.name['name-en'].toLowerCase()}}:{{val['personality'].toLowerCase()}}">
   <img alt="{{val.name['name-en']}}" loading="lazy" src="https://acnhapi.com/images/villagers/{{val['file-name']}}" width="250" height="250">
-  <p><span class="name">{{val.name['name-en']}}</span> <span class="birthdate">- {{val['birthday-string']}}</span></p>
+  <p><span class="name">{{val.name['name-en']}}</span> <span class="birthdate">- {{val['personality']}}</span></p>
 </div>
 {% endfor %}
 
@@ -123,9 +113,6 @@ header span {
 
 <script>
 let names = [];
-document.querySelector('.calendar-url').addEventListener('focus', e => {
-  e.target.select();
-});
 const closest = (el, className) => {
   if (el.classList.contains(className)) {
     return el;
@@ -149,23 +136,63 @@ const updateVillager = name => {
   }
 }
 
+const personalitiesMap = new Map();
+personalitiesMap.set('cranky-cranky',5)
+personalitiesMap.set('cranky-jock',-3)
+personalitiesMap.set('cranky-lazy',5)
+personalitiesMap.set('cranky-smug',-5)
+personalitiesMap.set('cranky-normal',3)
+personalitiesMap.set('cranky-peppy',-3)
+personalitiesMap.set('cranky-snooty',-5)
+personalitiesMap.set('cranky-uchi',-4)
+personalitiesMap.set('jock-jock',0)
+personalitiesMap.set('jock-lazy',-5)
+personalitiesMap.set('jock-smug',3)
+personalitiesMap.set('jock-normal',0)
+personalitiesMap.set('jock-peppy',3)
+personalitiesMap.set('jock-snooty',-5)
+personalitiesMap.set('jock-uchi',3)
+personalitiesMap.set('lazy-lazy',5)
+personalitiesMap.set('lazy-smug',3)
+personalitiesMap.set('lazy-normal',-1)
+personalitiesMap.set('lazy-peppy',5)
+personalitiesMap.set('lazy-snooty',-5)
+personalitiesMap.set('lazy-uchi',0)
+personalitiesMap.set('smug-smug',4)
+personalitiesMap.set('smug-normal',0)
+personalitiesMap.set('smug-peppy',4)
+personalitiesMap.set('smug-snooty',5)
+personalitiesMap.set('smug-uchi',0)
+personalitiesMap.set('normal-normal',0)
+personalitiesMap.set('normal-peppy',5)
+personalitiesMap.set('normal-snooty',0)
+personalitiesMap.set('normal-uchi',5)
+personalitiesMap.set('peppy-peppy',0)
+personalitiesMap.set('peppy-snooty',0)
+personalitiesMap.set('peppy-uchi',5)
+personalitiesMap.set('snooty-snooty',5)
+personalitiesMap.set('snooty-uchi',3)
+personalitiesMap.set('uchi-uchi',0)
+
+
+
 const renderImg = () => {
-  const calendarUrl = document.querySelector('.calendar-url');
-  const villagers = encodeURIComponent(names.join(','));
-  const url = `webcal://acnh-birthdays.steele.blue/cal?villagers=${villagers}`;
-  calendarUrl.value = url;
-  document.querySelector('.link a').href=url;
-  const calendarWrapper = document.querySelector('.calendar');
-  if (names.length > 0) {
-    calendarWrapper.classList.remove('hidden');
-  } else {
-    calendarWrapper.classList.add('hidden');
+  const personalities = names.map((nameAndPers) => nameAndPers.split(':')[1]);
+  let score = 0;
+  if(personalities.length > 1){
+    for(let i = 0; i < personalities.length - 1; i++){
+      console.log(personalities[i]);
+      if(personalitiesMap.has(personalities[i] + '-' + personalities[i+1])){
+        score += personalitiesMap.get(personalities[i] + '-' + personalities[i+1])
+      } else {
+        score += personalitiesMap.get(personalities[i+1] + '-' + personalities[i])
+      }
+      console.log(score);
+    }
   }
+
+  document.querySelector('.score').innerHTML = score;
 }
-document.querySelector('.copy').addEventListener('click', async e => {
-  const calendarUrl = document.querySelector('.calendar-url');
-  await navigator.clipboard.writeText(calendarUrl.value);
-})
 </script>
 </body>
 
