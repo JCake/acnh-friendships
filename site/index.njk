@@ -178,14 +178,16 @@ personalitiesMap.set('uchi-uchi',0)
 
 const renderImg = () => {
   const personalities = names.map((nameAndPers) => nameAndPers.split(':')[1]);
+  console.log(personalities);
   let score = 0;
   if(personalities.length > 1){
     for(let i = 0; i < personalities.length - 1; i++){
-      console.log(personalities[i]);
-      if(personalitiesMap.has(personalities[i] + '-' + personalities[i+1])){
-        score += personalitiesMap.get(personalities[i] + '-' + personalities[i+1])
-      } else {
-        score += personalitiesMap.get(personalities[i+1] + '-' + personalities[i])
+      for(let j = i + 1; j < personalities.length; j++){
+        if(personalitiesMap.get(personalities[i] + '-' + personalities[j]) !== undefined ){
+          score += personalitiesMap.get(personalities[i] + '-' + personalities[j])
+        } else {
+          score += personalitiesMap.get(personalities[j] + '-' + personalities[i])
+        }
       }
       console.log(score);
     }
